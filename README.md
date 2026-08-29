@@ -2,3 +2,4 @@
 A duolingo style pomodoro timer....
 <br>
 Link: https://katsugachi.github.io/Contomo/
+Run locally by downloading `index.html`; you can rename it to whatever you want just keep the line ending (.html)

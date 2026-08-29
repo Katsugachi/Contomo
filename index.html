@@ -2301,6 +2301,7 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
           weekMinutes: clamp(Math.round(Number(f.weekMinutes) || 0), 0, 10080),
           lastSeen: clamp(Math.round(Number(f.lastSeen) || 0), 0, Date.now() + 60000),
           lastTs: clamp(Math.round(Number(f.lastTs) || 0), 0, Date.now() + 60000),
+          guest: !!f.guest, // unsolicited contact - first evicted, cleared when added
         };
       }
     }
@@ -2423,10 +2424,12 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
   }
 
   let storeWarned = false;
+  let lastPersisted = ""; // snapshot string of the newest SUCCESSFUL write
   async function store(json, seq) {
     if (seq !== saveSeq) return; // superseded by a newer save
     try {
       localStorage.setItem(LS_KEY, await encryptState(json));
+      lastPersisted = json;
     } catch {
       // file:// in some browsers denies storage; a full quota fails too.
       // Either way the app keeps running memory-only - say so once.
@@ -3401,10 +3404,9 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
   const friendsModal = $("#friends-modal");
   const liveConns = new Map();   // friend code -> open-ish DataConnection
   const dialAttempts = new Map(); // friend code -> last dial timestamp
-  // Unsolicited contacts (strangers who dialed our code): shown for this
-  // session only, never written into the save - a code-scanner could
-  // otherwise plant permanent rows and crowd real friends out of the cap.
-  const sessionGuests = new Map();
+  // Unsolicited contacts persist like friends but carry a guest flag, so
+  // trimFriends() can evict them first - a code-scanner planting rows
+  // still can't crowd out friends the user actually added.
   const acceptedAt = new Map();  // friend code -> last accepted profile time
   let peer = null;
   let peerLoading = null;
@@ -3564,16 +3566,17 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
       lastTs: ts,
     };
 
-    if (prev) {
-      S.friends[code] = entry;
-      trimFriends();
-      save();
-      // First contact answers addFriendByCode's "Looking for your friend…" -
-      // the placeholder it left has lastSeen 0, so data arriving means found.
-      if (prev.lastSeen === 0) setFriendsNote("");
-    } else {
-      sessionGuests.set(code, entry);
-    }
+    // Everyone persists - a friend who dialed you first must survive a
+    // refresh just like one you added by code. The guest flag only marks
+    // the contact as unsolicited (eviction priority); adding their code
+    // clears it.
+    entry.guest = prev ? !!prev.guest : true;
+    S.friends[code] = entry;
+    trimFriends();
+    save();
+    // First contact answers addFriendByCode's "Looking for your friend…" -
+    // the placeholder it left has lastSeen 0, so data arriving means found.
+    if (prev && prev.lastSeen === 0) setFriendsNote("");
     renderFriends();
     if (msg.t === "hello") safeSend(conn, { t: "profile", p: myProfile() });
   }
@@ -3581,10 +3584,19 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
   function trimFriends() {
     const codes = Object.keys(S.friends);
     if (codes.length <= FRIENDS_CAP) return;
+    // Unsolicited guests are evicted before friends the user actually
+    // added - a flood of hostile dials must never push a real friend out.
     codes
-      .sort((a, b) => (S.friends[a].lastSeen || 0) - (S.friends[b].lastSeen || 0))
+      .sort((a, b) => {
+        const ga = S.friends[a].guest ? 0 : 1;
+        const gb = S.friends[b].guest ? 0 : 1;
+        return ga - gb || (S.friends[a].lastSeen || 0) - (S.friends[b].lastSeen || 0);
+      })
       .slice(0, codes.length - FRIENDS_CAP)
-      .forEach((code) => delete S.friends[code]);
+      .forEach((code) => {
+        delete S.friends[code];
+        acceptedAt.delete(code);
+      });
   }
 
   async function syncFriends() {
@@ -3664,11 +3676,9 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
     const nameEl = $("#friends-name");
     if (nameEl && document.activeElement !== nameEl) nameEl.value = S.profile.name || "";
 
-    // Persisted friends plus this session's unsolicited guests (a guest
-    // that has since been properly added is skipped in favor of the
-    // persisted entry).
-    const entries = Object.entries(S.friends || {})
-      .concat([...sessionGuests.entries()].filter(([code]) => !S.friends[code]));
+    // Persisted friends - including unsolicited contacts, which carry a
+    // guest flag until the user adds their code.
+    const entries = Object.entries(S.friends || {});
     const countEl = $("#friends-count");
     if (countEl) countEl.textContent = String(entries.length);
 
@@ -3727,6 +3737,10 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
       return;
     }
     if (S.friends[code]) {
+      if (S.friends[code].guest) {
+        delete S.friends[code].guest; // promoted: a guest you confirmed by code
+        save();
+      }
       setFriendsNote("Already on your list.");
       syncFriends();
       return;
@@ -3749,7 +3763,6 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
 
   function removeFriend(code) {
     delete S.friends[code];
-    sessionGuests.delete(code);
     acceptedAt.delete(code);
     const conn = liveConns.get(code);
     if (conn) { try { conn.close(); } catch {} }
@@ -4610,11 +4623,30 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
     : init();
 
   // Sunday 23:59 can pass while the tab sits open - re-check on wake.
+  // Silent heartbeat: every 5s, persist anything that changed since the
+  // last successful write. Every mutation already saves on the spot, so
+  // this is a safety net for gaps like a pagehide write losing the race
+  // on an unload - at worst a refresh rewinds five seconds. The hidden
+  // flush shares the dirty check so tab switches don't churn writes.
+  function flushIfDirty() {
+    const snap = JSON.stringify(S);
+    // Heal a data slot wiped behind our back (extension, partial site-data
+    // clear) - but ONLY when the key survived. A full clear must stay a
+    // clean first run: re-planting here would encrypt with the stale
+    // in-memory key while contomo.k is gone, so the next page would read
+    // it with a fresh key and cry tamper.
+    const wiped = lastPersisted && !localStorage.getItem(LS_KEY) && localStorage.getItem(KEY_KEY);
+    if (snap !== lastPersisted || wiped) save();
+  }
   document.addEventListener("visibilitychange", () => {
-    if (document.hidden || !booted) return;
+    if (!booted) return;
+    if (document.hidden) { flushIfDirty(); return; }
     checkWeeklyReset();
     if (friendsModal.classList.contains("open")) syncFriends();
   });
+  setInterval(() => {
+    if (booted) flushIfDirty();
+  }, 5000);
 
   // E2E-only seam: automated tests seed deep-rank states and assert the
   // pure math through the app's own functions. Inert unless the page was

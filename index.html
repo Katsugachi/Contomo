@@ -66,6 +66,10 @@
   --flame: #c0684b;
   --flame-edge: #99503a;
 
+  --navy: #2E4A6B;             /* prestige - the dark-blue medal */
+  --navy-edge: #1F3450;
+  --navy-soft: #e3e9f2;
+
   --white: #fffef6;
 
   --r-s: 10px;
@@ -112,6 +116,10 @@
   --flame: #d0825f;
   --flame-edge: #a96244;
 
+  --navy: #55779E;
+  --navy-edge: #3E5B7D;
+  --navy-soft: #24344A;
+
   --shadow-card: 0 2px 0 rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.35);
 }
 
@@ -148,6 +156,10 @@
 
     --flame: #d0825f;
     --flame-edge: #a96244;
+
+    --navy: #55779E;
+    --navy-edge: #3E5B7D;
+    --navy-soft: #24344A;
 
     --shadow-card: 0 2px 0 rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.35);
   }
@@ -342,6 +354,14 @@ h1, h2, p { margin: 0; }
 .rank-pill .badge-inline { width: 30px; height: 30px; flex: none; }
 .rank-pill .badge-inline svg { width: 100%; height: 100%; }
 .rank-pill .rank-name { font-family: var(--font-disp); font-size: 15px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* Prestige: the dark-navy medal earned by resetting a maxed ladder.
+   Hidden until the first prestige - renderPrestige toggles .hidden. */
+.prestige-pill { cursor: pointer; }
+.prestige-pill:hover { border-color: var(--navy); }
+.prestige-pill .badge-inline { width: 30px; height: 30px; flex: none; }
+.prestige-pill .badge-inline svg { width: 100%; height: 100%; }
+.prestige-pill .num { color: var(--navy); }
 
 .icon-btn {
   display: grid;
@@ -745,6 +765,15 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
 .task-card.drag-over { border-color: var(--blue); border-style: dashed; }
 .task-card.done { opacity: 0.55; }
 .task-card.done .task-title { text-decoration: line-through; text-decoration-thickness: 2px; }
+/* Flagged by the farm audit: kept as the record of the strike, stripped
+   of every reward cue (no XP chip glow, rust border like a warning). */
+.task-card.farm {
+  border-color: var(--red);
+  background: var(--red-soft);
+  opacity: 0.6;
+}
+.task-card.farm .chip-xp { display: none; }
+.task-card.farm .checkbox { pointer-events: none; filter: grayscale(1); }
 
 .task-index {
   cursor: grab;
@@ -841,6 +870,7 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
   animation: chip-pulse 1.6s ease-in-out infinite;
 }
 .chip-xp { background: var(--gold-soft); color: var(--gold-edge); }
+.chip-prestige { background: var(--navy); color: #fffef6; }
 
 /* Inline icon glyphs inside text runs - sized to the line, never emoji */
 .chip svg { width: 10px; height: 10px; margin-right: 4px; vertical-align: -1px; }
@@ -913,6 +943,16 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
   0%, 100% { rotate: 0deg; }
   30% { rotate: -9deg; }
   65% { rotate: 8deg; }
+}
+/* Destructive action: rust-red so a remove/delete never reads as neutral. */
+.mini-btn.danger {
+  background: var(--red-soft);
+  color: var(--red-edge);
+}
+.mini-btn.danger:hover {
+  background: var(--red);
+  border-color: var(--red-edge);
+  color: var(--white);
 }
 
 /* --- empty state --- */
@@ -1014,6 +1054,14 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
 }
 .quest-sub { margin-top: 6px; font-size: 12px; font-weight: 700; color: var(--muted); }
 .quest.complete .quest-fill { background: var(--flame); }
+
+/* Weekly quest: the same chest, slate-blue so the two horizons read apart. */
+.quest-week { margin-top: 12px; }
+.quest-week .week-icon { background: var(--blue); border-bottom-color: var(--blue-edge); }
+.quest-week .week-icon svg { color: var(--white); }
+.quest-week .quest-title .count { color: var(--blue-edge); }
+.quest-week.complete .quest-fill { background: var(--blue); }
+.quest-week.complete .quest-icon { animation: chest-pop 600ms var(--pop-ease); }
 
 /* ============================================================
    BREAKDOWN MODAL
@@ -1235,6 +1283,14 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
   transform: scale(1.02);
 }
 .rank-row.current .rr-state { background: var(--blue); color: var(--white); }
+/* Online friends: green "go" - connected right now. Distinct from the
+   blue .current, which means "you" on the board and in the rank ladder. */
+.rank-row.online {
+  border-color: var(--green);
+  background: var(--green-soft);
+  box-shadow: 0 3px 0 var(--green-edge);
+}
+.rank-row.online .rr-state { background: var(--green); color: var(--white); }
 .rank-row.locked { opacity: 0.55; filter: grayscale(0.55); }
 .rank-row.locked .rank-badge { filter: grayscale(0.8); opacity: 0.6; }
 
@@ -1246,7 +1302,10 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
 .friends-pill svg { color: var(--blue); }
 .friends-pill .num { color: var(--ink-strong); }
 
-.ranks-week strong { letter-spacing: 0.02em; }
+.ranks-week strong {
+  letter-spacing: 0.02em;
+  color: var(--rk, var(--ink));
+}
 
 .friends-card { width: min(480px, 100%); }
 
@@ -1470,6 +1529,12 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
+/* Prestige's banner wears the medal's own navy. */
+.level-banner.navy {
+  background: var(--navy);
+  border-bottom-color: var(--navy-edge);
+  color: #fffef6;
+}
 .level-stage {
   display: flex;
   align-items: center;
@@ -1529,6 +1594,7 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
 .rk-mythic  { --rk: #8250c4; }
 .rk-master  { --rk: #b23040; }
 .level-rank { color: var(--rk, var(--ink)); }
+.level-rank.navy { background: var(--navy-soft); color: var(--navy); --rk: var(--navy); }
 .level-rank::before {
   content: "";
   display: inline-block;
@@ -1554,8 +1620,9 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
   .icon-btn { order: 2; }
   .pill.streak { order: 3; }
   .pill.xp { order: 4; }
-  .rank-pill { order: 5; }
-  .friends-pill { order: 6; }
+  .prestige-pill { order: 5; }
+  .rank-pill { order: 6; }
+  .friends-pill { order: 7; }
   .task-meta-row { grid-template-columns: 90px 1fr; }
   .card-head { flex-wrap: wrap; row-gap: 8px; }
   .card-head .spacer { display: none; }
@@ -1624,6 +1691,14 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
         <div class="sub">
           <span class="rank-name rk-bronze" id="stat-rank-name">Bronze</span>
           <span class="lbl">Level <span id="stat-level">1</span> · <span id="rank-progress">0 / 100 XP</span></span>
+        </div>
+      </button>
+
+      <button class="pill prestige-pill hidden" id="pill-prestige" title="Prestige" aria-haspopup="dialog">
+        <span class="badge-inline" id="stat-prestige-badge"></span>
+        <div class="sub">
+          <span class="num" id="stat-prestige">I</span>
+          <span class="lbl">Prestige</span>
         </div>
       </button>
 
@@ -1776,6 +1851,24 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
               <div class="quest-sub" id="quest-sub">Finish 3 focus sessions to claim +75 XP</div>
             </div>
           </div>
+
+          <div class="quest quest-week" id="quest-week">
+            <div class="quest-icon week-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round">
+                <rect x="3.5" y="5" width="17" height="15.5" rx="2"/>
+                <path d="M3.5 9.5 h17"/>
+                <path d="M8 3 v3.5 M16 3 v3.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="quest-main">
+              <div class="quest-title">
+                <span>Weekly quest · 18 focus blocks</span>
+                <span class="count" id="week-count">0 / 18</span>
+              </div>
+              <div class="quest-track"><div class="quest-fill" id="week-fill"></div></div>
+              <div class="quest-sub" id="week-sub">Finish 18 focus blocks this week to claim +400 XP</div>
+            </div>
+          </div>
         </div>
       </section>
     </main>
@@ -1811,6 +1904,7 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
           <div class="quest-track"><div class="quest-fill" id="ranks-fill"></div></div>
           <div class="quest-sub" id="ranks-rank-line">742 XP to Silver</div>
           <div class="quest-sub ranks-week" id="ranks-week-line"></div>
+          <div class="quest-sub" id="ranks-prestige-line"></div>
         </div>
         <ul class="ranks-list" id="ranks-list"></ul>
       </div>
@@ -1972,6 +2066,76 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
     },
   };
 
+  /* ---------- PRESTIGE · the dark-navy crest ----------
+     Earned each time the ladder is climbed to the top of
+     Master and reset. A layered shield carries a laurel
+     wreath around a gold star; the roman numeral rides a
+     gold banner across the top. Leaves are generated on an
+     arc so the wreath reads as a wreath, not two strokes,
+     and the numeral's font size steps down with length so
+     VIII (and longer) still fits the banner. */
+  function roman(n) {
+    const v = Math.max(1, Math.round(Number(n) || 1));
+    const pairs = [
+      [1000, "M"], [900, "CM"], [500, "D"], [400, "CD"], [100, "C"], [90, "XC"],
+      [50, "L"], [40, "XL"], [10, "X"], [9, "IX"], [5, "V"], [4, "IV"], [1, "I"],
+    ];
+    let out = "";
+    let rest = v;
+    for (const [val, sym] of pairs) {
+      while (rest >= val) { out += sym; rest -= val; }
+    }
+    return out;
+  }
+
+  function prestigeBadge(p) {
+    const numeral = roman(p);
+    const len = numeral.length;
+    // Step the numeral down as it widens; 5+ glyphs get squeezed to a
+    // fixed banner width so even MCMXCIX can never spill off the shield.
+    const size = len <= 3 ? 11 : len === 4 ? 9.5 : 8;
+    const fit = len >= 5 ? ' textLength="30" lengthAdjust="spacingAndGlyphs"' : "";
+    const ty = (12.1 + size * 0.36).toFixed(1);
+
+    // Laurel wreath: leaves hug a circle centred low on the shield,
+    // tangent-oriented and tapering as they climb. Drawn before the
+    // banner so the topmost leaves tuck behind it like a real crest.
+    let leaves = "";
+    for (const side of [-1, 1]) {
+      for (let i = 0; i < 6; i++) {
+        const deg = 90 + side * (26 + i * 22);
+        const rad = (deg * Math.PI) / 180;
+        const R = 13.2;
+        const x = (24 + R * Math.cos(rad)).toFixed(2);
+        const y = (26.5 + R * Math.sin(rad)).toFixed(2);
+        const rot = (deg + side * 108).toFixed(1); // tangent, tilted outward
+        const s = (1 - i * 0.1).toFixed(2);        // thinner toward the top
+        leaves +=
+          `<ellipse cx="${x}" cy="${y}" rx="${(3.2 * s).toFixed(2)}" ry="${(1.5 * s).toFixed(2)}" ` +
+          `transform="rotate(${rot} ${x} ${y})" fill="#D9A94A" stroke="#946F15" stroke-width="0.7"/>`;
+      }
+    }
+
+    return `
+<svg viewBox="0 0 48 48" role="img" aria-label="Prestige ${numeral}">
+  <path d="M24 2.5 L43 9 V24 C43 34 35 42 24 45.5 C13 42 5 34 5 24 V9 Z"
+        fill="#1F3450" stroke="#152438" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="M24 5.5 L40 10.8 V24 C40 32.4 33.5 39.3 24 42.6 C14.5 39.3 8 32.4 8 24 V10.8 Z"
+        fill="#2E4A6B" stroke="#4A6B94" stroke-width="1"/>
+  <circle cx="24" cy="26.5" r="15.4" fill="none" stroke="#24405E" stroke-width="1"/>
+  ${leaves}
+  <ellipse cx="21.8" cy="39.4" rx="3.1" ry="1.35" transform="rotate(32 21.8 39.4)" fill="#D9A94A" stroke="#946F15" stroke-width="0.7"/>
+  <ellipse cx="26.2" cy="39.4" rx="3.1" ry="1.35" transform="rotate(-32 26.2 39.4)" fill="#D9A94A" stroke="#946F15" stroke-width="0.7"/>
+  <path d="${starPath(24, 26.5, 5.4, 2.2, 5)}" fill="#D9A94A" stroke="#946F15" stroke-width="0.9" stroke-linejoin="round"/>
+  <path d="M11.5 9.5 L4.8 8 L6.8 12.2 L4.8 16.4 L11.5 15 Z" fill="#946F15"/>
+  <path d="M36.5 9.5 L43.2 8 L41.2 12.2 L43.2 16.4 L36.5 15 Z" fill="#946F15"/>
+  <rect x="9.5" y="6.5" width="29" height="11.5" rx="2.4" fill="#D9A94A" stroke="#946F15" stroke-width="1.2"/>
+  <rect x="11.2" y="8" width="25.6" height="3" rx="1.5" fill="#F6E3A8"/>
+  <text x="24" y="${ty}" text-anchor="middle" fill="#1F3450" font-size="${size}"${fit}
+        font-family="'Baloo 2', Georgia, serif" font-weight="800">${numeral}</text>
+</svg>`;
+  }
+
   const RANKS = [
     { key: "bronze", name: "Bronze", minLevel: 1, maxLevel: 7 },
     { key: "silver", name: "Silver", minLevel: 8, maxLevel: 14 },
@@ -1995,7 +2159,7 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
     return factory ? factory() : "";
   }
 
-  window.ChronoBadges = { RANKS, rankForLevel, badgeSVG, BADGES };
+  window.ChronoBadges = { RANKS, rankForLevel, badgeSVG, BADGES, roman, prestigeBadge };
 })();</script>
     <script>
 /* ============================================================
@@ -2023,6 +2187,11 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
   const $ = (sel) => document.querySelector(sel);
   const $$ = (sel) => Array.from(document.querySelectorAll(sel));
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  /** Missing/garbage → default, but a real 0 survives: a banked quest
+      bonus of 0 means "claimed while the vault was capped" and must not
+      resurrect as an unclaimed default the next load. */
+  const numOr = (v, dflt) =>
+    v == null || !Number.isFinite(Number(v)) ? dflt : Math.round(Number(v));
   const esc = (s) =>
     String(s).replace(/[&<>"']/g, (c) =>
       ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -2087,9 +2256,10 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
       v: STATE_VERSION,
       xp: 0,
       bestLevel: 1,
+      prestige: 0,
       streak: { current: 0, best: 0, lastDay: null },
       daily: { date: todayKey(), count: 0, bonusGiven: false, minutes: 0 },
-      week: { lastKey: weekKey(), rank: "bronze", minutes: 0, defended: false },
+      week: { lastKey: weekKey(), rank: "bronze", minutes: 0, defended: false, blocks: 0, bonusGiven: false, bonusXP: 0 },
       profile: { name: "", code: "" },
       friends: {},
       completedWorkTotal: 0,
@@ -2190,17 +2360,20 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
   let storageKeyCache = null;
 
   const ENV_PREFIX = "c1:"; // marks an envelope; '{' alone is legacy plaintext
+  const SEQ_MARK = "§";     // envelope suffix: "…json§<saveSeq>" for multi-tab ordering
   async function encryptState(json) {
     const keys = await storageKeys();
     storageKeyCache = keys;
     const iv = crypto.getRandomValues(new Uint8Array(12));
-    if (!keys.aes) return ENV_PREFIX + xorEnvelope(json, iv, keys.seed);
+    if (!keys.aes) return ENV_PREFIX + xorEnvelope(json, iv, keys.seed) + SEQ_MARK + mySeq;
     const ct = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv }, keys.aes, te.encode(json)));
     const mac = new Uint8Array(await crypto.subtle.sign("HMAC", keys.mac, concatBytes(iv, ct)));
-    return ENV_PREFIX + JSON.stringify({ fmt: 2, iv: b64(iv), ct: b64(ct), mac: b64(mac) });
+    return ENV_PREFIX + JSON.stringify({ fmt: 2, iv: b64(iv), ct: b64(ct), mac: b64(mac) }) + SEQ_MARK + mySeq;
   }
 
   async function decryptState(raw) {
+    const mark = raw.lastIndexOf(SEQ_MARK); // strip the seq suffix, never part of the envelope
+    if (mark !== -1 && /^\d+$/.test(raw.slice(mark + 1))) raw = raw.slice(0, mark);
     if (raw.startsWith(ENV_PREFIX)) raw = raw.slice(ENV_PREFIX.length);
     const env = JSON.parse(raw);
     if (!env || typeof env !== "object" || !env.ct) throw new Error("bad envelope");
@@ -2246,6 +2419,7 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
 
     S.xp = clamp(Math.round(Number(S.xp) || 0), 0, XP_CAP);
     S.bestLevel = clamp(Math.round(Number(S.bestLevel) || 1), 1, 100);
+    S.prestige = clamp(Math.round(Number(S.prestige) || 0), 0, 999);
     S.v = STATE_VERSION;
     S.completedWorkTotal = clamp(Math.round(Number(S.completedWorkTotal) || 0), 0, 1e6);
     S.cycleCount = clamp(Math.round(Number(S.cycleCount) || 0), 0, 1e6);
@@ -2266,7 +2440,7 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
       count: clamp(Math.round(Number(S.daily.count) || 0), 0, 999),
       bonusGiven: !!S.daily.bonusGiven,
       minutes: clamp(Math.round(Number(S.daily.minutes) || 0), 0, 1440),
-      bonusXP: clamp(Math.round(Number(S.daily.bonusXP) || DAILY_GOAL_BONUS_XP), 1, 1e5),
+      bonusXP: clamp(numOr(S.daily.bonusXP, DAILY_GOAL_BONUS_XP), 0, 1e5),
     };
 
     if (!S.week || typeof S.week !== "object") S.week = fresh.week;
@@ -2276,6 +2450,9 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
       rank: RANKS.some((r) => r.key === S.week.rank) ? S.week.rank : "bronze",
       minutes: clamp(Math.round(Number(S.week.minutes) || 0), 0, 10080),
       defended: !!S.week.defended,
+      blocks: clamp(Math.round(Number(S.week.blocks) || 0), 0, 999),
+      bonusGiven: !!S.week.bonusGiven,
+      bonusXP: clamp(numOr(S.week.bonusXP, WEEKLY_GOAL_XP), 0, 1e5),
     };
 
     if (!S.profile || typeof S.profile !== "object") S.profile = fresh.profile;
@@ -2291,16 +2468,17 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
     if (S.friends && typeof S.friends === "object" && !Array.isArray(S.friends)) {
       for (const [code, f] of Object.entries(S.friends)) {
         if (!/^\d{8}$/.test(code) || !f || typeof f !== "object") continue;
-        const lvl = clamp(Math.round(Number(f.level) || 1), 1, 100);
+        const lvl = clamp(numOr(f.level, 1) || 1, 1, 100);
         friends[code] = {
           name: String(f.name || "Player").slice(0, 24),
-          xp: clamp(Math.round(Number(f.xp) || 0), 0, 10000000),
+          xp: clamp(numOr(f.xp, 0), 0, 10000000),
           level: lvl,
           rank: RANKS.some((r) => r.key === f.rank) ? f.rank : rankForLevel(lvl).key,
-          streak: clamp(Math.round(Number(f.streak) || 0), 0, 9999),
-          weekMinutes: clamp(Math.round(Number(f.weekMinutes) || 0), 0, 10080),
-          lastSeen: clamp(Math.round(Number(f.lastSeen) || 0), 0, Date.now() + 60000),
-          lastTs: clamp(Math.round(Number(f.lastTs) || 0), 0, Date.now() + 60000),
+          prestige: clamp(numOr(f.prestige, 0), 0, 999),
+          streak: clamp(numOr(f.streak, 0), 0, 9999),
+          weekMinutes: clamp(numOr(f.weekMinutes, 0), 0, 10080),
+          lastSeen: f.lastSeen ? clamp(numOr(f.lastSeen, 0), 0, Date.now() + 60000) : null,
+          lastTs: clamp(numOr(f.lastTs, 0), 0, Date.now() + 60000),
           guest: !!f.guest, // unsolicited contact - first evicted, cleared when added
         };
       }
@@ -2348,6 +2526,12 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
         // Pre-anti-farm tasks are treated as already paid out, so upgrading
         // can't mint a refund farm out of previously-completed work.
         awardedDone: typeof t.awardedDone === "boolean" ? t.awardedDone : !!t.done,
+        // Exact bonus actually banked (cap-clipped) - the farm audit revokes
+        // this recorded sum, never an estimate.
+        awardedXP: clamp(Math.round(Number(t.awardedXP) || 0), 0, 100000),
+        // Flagged by the LFM farm audit; revoked tasks can never pay again.
+        farm: !!t.farm,
+        revoked: !!t.revoked,
         subtasks: (Array.isArray(t.subtasks) ? t.subtasks : [])
           .slice(0, 24)
           .map((st) => ({
@@ -2413,20 +2597,82 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
 
   let saveSeq = 0;
   let writeChain = Promise.resolve();
-  /** Fire-and-forget encrypted write. The snapshot is taken synchronously
-      so callers keep today's semantics; writes serialize and the newest
-      snapshot wins. */
+  /** Fire-and-forget encrypted write, coalesced: a synchronous burst of
+      save() calls (session completion chains 5-7) stringifies ONCE, and
+      store() skips any snapshot a newer save has already superseded. The
+      snapshot is taken synchronously so callers keep today's semantics;
+      writes serialize and the newest snapshot wins. */
   function save() {
     const seq = ++saveSeq;
-    const snap = JSON.stringify(S);
-    writeChain = writeChain.then(() => store(snap, seq)).catch(() => {});
+    if (pendingSave === null) {
+      // First call of this synchronous burst: snapshot now. Later calls in
+      // the same burst share it - S can't change between them anyway.
+      pendingSave = seq;
+      queueMicrotask(() => {
+        const snap = JSON.stringify(S);
+        const atSeq = saveSeq; // newest seq in the burst
+        pendingSave = null;
+        writeChain = writeChain
+          .then(() => store(snap, atSeq))
+          .catch(() => {});
+      });
+    }
     return writeChain;
   }
+  let pendingSave = null;
 
   let storeWarned = false;
   let lastPersisted = ""; // snapshot string of the newest SUCCESSFUL write
+
+  /* ---- multi-tab coordination ----
+     Tab A writing while tab B is open used to be last-writer-wins on the
+     whole encrypted blob: B's next dirty-flush re-saved its stale snapshot
+     and silently reverted A's completed sessions. The `storage` event (see
+     bottom of the file) lets B ADOPT A's envelope instead - and to keep
+     the two tabs' flushes from ping-ponging, every envelope carries a
+     monotonically increasing save seq, and a tab only adopts a strictly
+     newer one. */
+  let mySeq = 0;            // this tab's newest save seq (starts above 0: seq 0 means "unknown")
+
+  /** Pull the save seq out of an envelope WITHOUT trusting it: decryption
+      is async and the listener must stay synchronous, so we encrypt the
+      seq in the clear beside the ciphertext instead. Format: "c1:<json>
+      §<seq>" - the § suffix is added by encryptState and stripped by
+      decryptState, which never sees it. */
+  function extractSeq(raw) {
+    const m = /§(\d+)$/.exec(String(raw || ""));
+    return m ? Number(m[1]) : null;
+  }
+
+  /** Another tab wrote a newer envelope: decrypt + adopt it wholesale.
+      Reuses hydrate's parsing rules (scrub, shape-check, sanitize) but
+      keeps THIS tab's live timer - a background tab's timerLive snapshot
+      is stale by definition and must not rewind the visible one. */
+  async function adoptRemoteState(raw) {
+    let loaded = null;
+    try {
+      loaded = JSON.parse(await decryptState(raw));
+    } catch {
+      return; // undecryptable foreign envelope: ignore, ours stays
+    }
+    if (!loaded || typeof loaded !== "object" || typeof loaded.xp !== "number") return;
+    scrubProto(loaded);
+    loaded.timerLive = null; // never let a remote tab move this tab's clock
+    S = Object.assign(defaultState(), loaded);
+    sanitizeState();
+    if (S.daily.date !== todayKey()) {
+      S.daily = { date: todayKey(), count: 0, bonusGiven: false, minutes: 0, bonusXP: DAILY_GOAL_BONUS_XP };
+    }
+    checkWeeklyReset();
+    lastPersisted = ""; // force the next flush to compare fresh
+    renderAllStats();
+    renderTasks();
+    renderFriends();
+  }
+
   async function store(json, seq) {
     if (seq !== saveSeq) return; // superseded by a newer save
+    mySeq = seq;
     try {
       localStorage.setItem(LS_KEY, await encryptState(json));
       lastPersisted = json;
@@ -2447,7 +2693,7 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
      3. Gamification math (pure)
      ---------------------------------------------------------- */
   const RANKS = window.ChronoBadges.RANKS;
-  const { rankForLevel, badgeSVG } = window.ChronoBadges;
+  const { rankForLevel, badgeSVG, roman, prestigeBadge } = window.ChronoBadges;
 
   /** Cumulative XP needed to *be* at `level`. The band between levels
       grows linearly (16L+42), so climbing stays achievable at every
@@ -2506,8 +2752,15 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
   function rankMult() {
     return RANK_XP_MULT[rankForLevel(levelFromXP(S.xp)).key] ?? 1;
   }
+  /** Each prestige compounds ×1.1 onto every XP payout - sessions, task
+      bonuses, quests, all of it. The ceiling only exists so an absurd
+      sanitize-clamped prestige count can't overflow the math; XP_CAP
+      self-limits the real payouts long before it matters. */
+  function prestigeMult() {
+    return Math.min(Math.pow(1.1, S.prestige), 1e6);
+  }
   function scaleXP(n) {
-    return Math.max(1, Math.round(n * rankMult()));
+    return Math.max(1, Math.round(n * rankMult() * prestigeMult()));
   }
 
   /** Base XP = session minutes; breaks pay 40%. Work scales with
@@ -2533,6 +2786,9 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
       : scaleXP(TASK_BONUS_XP);
   }
   const DAILY_GOAL_BONUS_XP = 75;
+  /** Weekly quest: 18 focus blocks in one Monday-Sunday week. */
+  const WEEKLY_GOAL_BLOCKS = 18;
+  const WEEKLY_GOAL_XP = 400;
 
   /* ----------------------------------------------------------
      4. Theme - "system | light | dark", resolved for icons
@@ -2956,6 +3212,7 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
     T.running = false;
     bodyEl.classList.remove("running");
     renderControls();
+    renderTime(); // drop the live-dot class immediately, not on the next tick
     persistTimer();
   }
 
@@ -2977,9 +3234,11 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
       return;
     }
     renderTime(Math.ceil(remainingMs / 1000));
-    // periodic snapshot while running (every ~2s) so refreshes
-    // never rewind the clock by more than a heartbeat
-    if (++T.tickCount % 10 === 0) persistTimer();
+    // periodic snapshot while running (every ~10s) so refreshes never
+    // rewind the clock by more than a heartbeat. The pagehide flush
+    // covers unload; encrypting the whole state every 2s was quota churn
+    // for a benefit 8 extra seconds can't buy.
+    if (++T.tickCount % 50 === 0) persistTimer();
   }
 
   /** Split display: minutes stay still, seconds flip each tick. */
@@ -3000,6 +3259,7 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
 
     renderRing(shown);
     liveDotEl.textContent = T.running ? "RUNNING" : "STANDBY";
+    liveDotEl.classList.toggle("live", T.running);
 
     document.title = T.running ? `${mm}:${ss} · ${MODE_TITLE[T.mode]} · Contomo` : "Contomo";
   }
@@ -3133,6 +3393,20 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
     }
     if (wasWork && S.week) {
       S.week.minutes = (S.week.minutes || 0) + focusMinutes;
+      // Weekly quest: 18 focus blocks Monday-Sunday. Counted after the
+      // session's own award, so the +400 lands as its own celebration.
+      S.week.blocks = (S.week.blocks || 0) + 1;
+      if (!S.week.bonusGiven && S.week.blocks >= WEEKLY_GOAL_BLOCKS) {
+        S.week.bonusGiven = true;
+        S.week.bonusXP = awardXP(scaleXP(WEEKLY_GOAL_XP), null);
+        setTimeout(() => {
+          Confetti.burst(innerWidth * 0.28, innerHeight * 0.4, 70);
+          toast(
+            `Weekly quest complete, <strong>+${S.week.bonusXP ?? WEEKLY_GOAL_XP} XP</strong> claimed - ${WEEKLY_GOAL_BLOCKS} focus blocks this week!`,
+            "success", 4600
+          );
+        }, 1100);
+      }
     }
     renderAllStats();
     broadcastProfile(); // live friends see the new numbers right away
@@ -3175,6 +3449,18 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
     renderXPBar();
     if (coords && applied > 0) flyXP(`+${applied} XP`, coords.x, coords.y - 8);
 
+    // Career high records level 100 BEFORE the prestige check - the reset
+    // that follows drops the level, but the high-water mark is permanent.
+    if (after > (Number(S.bestLevel) || 1)) S.bestLevel = after;
+
+    // Level 100's floor IS the XP cap, so "vault full + level 100" happens
+    // on exactly one boundary: the top of Master. That moment is prestige -
+    // the ladder resets and the celebration below replaces the level overlay.
+    if (S.xp >= XP_CAP && after >= 100) {
+      prestigeUp();
+      return applied;
+    }
+
     if (after > before) {
       const careerRankIdx = rankIndexOf(rankForLevel(careerHigh).key);
       const careerFirstRank = afterRankIdx > careerRankIdx;
@@ -3185,7 +3471,6 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
         }
       }
     }
-    if (after > (Number(S.bestLevel) || 1)) S.bestLevel = after;
     save();
     return applied;
   }
@@ -3219,6 +3504,8 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
     S.xp = Math.min(S.xp, resetTargetXP(defended.key));
     S.week.lastKey = wk;
     S.week.minutes = 0;
+    S.week.blocks = 0; // the weekly quest is a new week's climb too
+    S.week.bonusGiven = false;
     S.week.defended = false;
     // S.week.rank deliberately stays: it is the rank being defended.
     save();
@@ -3237,6 +3524,57 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
       }
     }
     return true;
+  }
+
+  /* ----------------------------------------------------------
+     7c. Prestige - the loop past the end of the ladder. Reaching
+         the top of Master (level 100, which begins exactly at
+         the XP cap) resets the climb to Bronze and compounds a
+         permanent ×1.1 onto every XP payout. Career high, streak
+         and daily stats are untouched; the defended weekly rank
+         must fall with it, or Monday's reset would land just
+         below Master and instantly re-prestige.
+     ---------------------------------------------------------- */
+  function prestigeUp() {
+    S.prestige = clamp(Math.round(Number(S.prestige) || 0), 0, 999) + 1;
+    S.xp = 0;
+    S.week.rank = "bronze";
+    S.week.defended = false;
+    save();
+    renderAllStats();
+    showPrestigeOverlay(S.prestige);
+    Confetti.rain(200);
+    setTimeout(() => Confetti.rain(120), 500);
+    Sound.levelUp();
+    toast(
+      `Prestige ${roman(S.prestige)} — the ladder resets, and every XP gain is now <strong>×${prestigeMult().toFixed(1)}</strong>. Forever.`,
+      "rankup", 7000
+    );
+    announce(`Prestige ${roman(S.prestige)} reached. Ladder reset, XP multiplier ×${prestigeMult().toFixed(1)}.`);
+  }
+
+  function showPrestigeOverlay(p) {
+    const ov = document.createElement("div");
+    ov.className = "level-overlay";
+    ov.innerHTML = `
+      <div class="level-card">
+        <div class="level-banner navy">Prestige ${roman(p)}</div>
+        <div class="level-stage">
+          <div class="badge-big">${prestigeBadge(p)}</div>
+          <div class="level-figures">
+            <div class="level-value">×${prestigeMult().toFixed(1)}</div>
+            <div class="level-from">all XP gains, forever</div>
+            <div class="level-rank navy">the ladder begins again</div>
+          </div>
+        </div>
+        <div class="level-hint">click anywhere to continue</div>
+      </div>`;
+    const close = () => {
+      ov.classList.add("closing");
+      setTimeout(() => ov.remove(), 220);
+    };
+    ov.addEventListener("click", close);
+    document.body.appendChild(ov);
   }
 
   /* ----------------------------------------------------------
@@ -3307,15 +3645,43 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
     $("#quest").classList.toggle("complete", S.daily.bonusGiven);
   }
 
+  function renderWeeklyGoal() {
+    const goal = WEEKLY_GOAL_BLOCKS;
+    const done = Math.min(S.week.blocks || 0, goal);
+    $("#week-count").textContent = `${done} / ${goal}`;
+    $("#week-fill").style.width = `${(done / goal) * 100}%`;
+    $("#week-sub").textContent = S.week.bonusGiven
+      ? `Claimed! +${S.week.bonusXP ?? WEEKLY_GOAL_XP} XP banked · ${S.week.blocks} blocks this week`
+      : `Finish ${goal - done} more focus block${goal - done === 1 ? "" : "s"} to claim +${scaleXP(WEEKLY_GOAL_XP)} XP`;
+    $("#quest-week").classList.toggle("complete", S.week.bonusGiven);
+  }
+
   function renderTodayStrip() {
     $("#today-sessions").textContent = S.daily.count;
     $("#today-mins").textContent = S.daily.minutes;
     $("#today-total").textContent = S.completedWorkTotal;
   }
 
+  /** The prestige pill stays hidden until the first reset - no clutter
+      while the ladder is still unclimbed. */
+  function renderPrestige() {
+    const pill = $("#pill-prestige");
+    if (!pill) return;
+    const p = clamp(Math.round(Number(S.prestige) || 0), 0, 999);
+    pill.classList.toggle("hidden", p === 0);
+    if (!p) return;
+    const badge = $("#stat-prestige-badge");
+    if (badge) badge.innerHTML = prestigeBadge(p);
+    const num = $("#stat-prestige");
+    if (num) num.textContent = roman(p);
+    pill.title = `Prestige ${roman(p)} · all XP ×${prestigeMult().toFixed(2)}`;
+  }
+
   function renderAllStats() {
     renderXPBar();
+    renderPrestige();
     renderDailyGoal();
+    renderWeeklyGoal();
     renderTodayStrip();
     updateModeUI(); // refreshes cycle dots, chips, state-coded chrome
     $("#session-count").textContent =
@@ -3361,6 +3727,13 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
       `<strong class="rk-${defending.key}">${defending.name}</strong>` +
       (margin ? ` (−${margin} XP)` : ``) +
       ` · career high Level ${Math.max(1, Number(S.bestLevel) || 1)}`;
+
+    const presLine = $("#ranks-prestige-line");
+    if (presLine) {
+      presLine.textContent = S.prestige
+        ? `Prestige ${roman(S.prestige)} · every XP gain ×${prestigeMult().toFixed(2)} · next at the top of Master`
+        : `Reach the top of Master to Prestige - the ladder resets, and all XP gains gain a permanent ×1.1.`;
+    }
 
     $("#ranks-list").innerHTML = RANKS.map((r) => {
       const state =
@@ -3427,6 +3800,7 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
       xp: S.xp,
       level: lvl,
       rank: rankForLevel(lvl).key,
+      prestige: clamp(Math.round(Number(S.prestige) || 0), 0, 999),
       streak: S.streak.current,
       weekMinutes: (S.week && S.week.minutes) || 0,
       ts: Date.now(),
@@ -3465,8 +3839,22 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
         } catch (err) {
           p.destroy();
           if (err?.type === "unavailable-id" && attempt < 4) {
-            S.profile.code = ""; // code taken on the broker - mint a fresh one
+            // Our broker slot is taken (stale peer still registered, or a
+            // code collision). A new code means every friend holding the
+            // old one now dials a dead ID - never re-mint silently.
+            const old = S.profile.code;
+            S.profile.code = "";
             myCode();
+            console.warn(
+              `[chrono] friend code ${old} was unavailable on the broker; ` +
+              `re-minted as ${S.profile.code}. Re-share your new code with friends.`
+            );
+            toast(
+              `Your friend code was taken, so a new one was issued: ` +
+              `<strong>${String(S.profile.code).replace(/(\d{4})(\d{4})/, "$1 $2")}</strong>. ` +
+              `Re-share it - the old code is dead.`,
+              "info", 9000
+            );
             continue;
           }
           throw err;
@@ -3495,10 +3883,11 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
     try { if (conn.open) conn.send(msg); } catch { /* dying conn; drop handles it */ }
   }
 
-  function attachConn(conn) {
+  function attachConn(conn, { dialed = false } = {}) {
     if (!conn) return;
     const code = String(conn.peer || "").replace(PEER_ID_PREFIX, "");
     if (!/^\d{8}$/.test(code)) { try { conn.close(); } catch {} return; }
+    conn._dialed = dialed; // glare tiebreak needs to know each channel's direction
     // Track immediately so the 60s sweep can reap a dial that never opens.
     // The one-channel-per-code decision happens on open, once we know
     // which channel actually came alive - simultaneous dials (both sides
@@ -3508,9 +3897,13 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
 
     conn.on("open", () => {
       const other = liveConns.get(code);
-      if (other && other !== conn && other.open) {
-        try { conn.close(); } catch {} // duplicate channel: keep the first to open
-        return;
+      if (other && other !== conn) {
+        if (other.open) { resolveGlare(code, other, conn); return; }
+        // A not-yet-open conn holds the slot: take it, but DON'T close the
+        // squatter - it may be the other leg of a glare that is about to
+        // open on the far peer too, and closing it here would be an
+        // ordering bet the other side isn't making. If it never opens,
+        // its own 60s sweep closes it.
       }
       liveConns.set(code, conn);
       safeSend(conn, { t: "hello", p: myProfile() });
@@ -3523,12 +3916,32 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
     };
     conn.on("close", drop);
     conn.on("error", drop);
-    // A dialed conn that never opens shouldn't squat on the code forever.
+    // A conn that never opened is closed 60s after attach - whether it
+    // still owns the slot or was evicted by a newer conn (which would
+    // otherwise leak the PeerConnection forever, unreachable by the sweep).
     setTimeout(() => {
-      if (!conn.open && liveConns.get(code) === conn) {
-        try { conn.close(); } catch {}
-      }
+      if (!conn.open) { try { conn.close(); } catch {} }
     }, 60000);
+  }
+
+  /** Two channels to the same friend (simultaneous dials) must not both
+      die: the old "keep whichever opened first" rule is per-side, so both
+      sides could each close their copy and the pair ends up with nothing.
+      Deterministic instead - the LOWER friend code keeps its outbound
+      dial, the higher code keeps the inbound one - so both sides close
+      the SAME channel and exactly one survives. Ties (unknown direction)
+      keep the incumbent. */
+  function resolveGlare(code, incumbent, fresh) {
+    let keeper = incumbent, closer = fresh;
+    if (fresh._dialed !== incumbent._dialed) {
+      const keepDialed = myCode() <= code;
+      const dialed = fresh._dialed ? fresh : incumbent;
+      const inbound = fresh._dialed ? incumbent : fresh;
+      keeper = keepDialed ? dialed : inbound;
+      closer = keeper === incumbent ? fresh : incumbent;
+    }
+    try { closer.close(); } catch {}
+    liveConns.set(code, keeper);
   }
 
   function handleFriendMsg(code, msg, conn) {
@@ -3554,14 +3967,15 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
     const prev = S.friends[code];
     if (prev && ts <= prev.lastTs) return; // stale replay
 
-    const lvl = clamp(Number(p.level) || 1, 1, 100);
+    const lvl = clamp(numOr(p.level, 1) || 1, 1, 100);
     const entry = {
       name: String(p.name || "Player").slice(0, 24),
-      xp: clamp(Number(p.xp) || 0, 0, 10000000),
+      xp: clamp(numOr(p.xp, 0), 0, 10000000),
       level: lvl,
       rank: RANKS.some((r) => r.key === p.rank) ? p.rank : rankForLevel(lvl).key,
-      streak: clamp(Number(p.streak) || 0, 0, 9999),
-      weekMinutes: clamp(Number(p.weekMinutes) || 0, 0, 10080),
+      prestige: clamp(numOr(p.prestige, 0), 0, 999),
+      streak: clamp(numOr(p.streak, 0), 0, 9999),
+      weekMinutes: clamp(numOr(p.weekMinutes, 0), 0, 10080),
       lastSeen: Date.now(),
       lastTs: ts,
     };
@@ -3575,8 +3989,8 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
     trimFriends();
     save();
     // First contact answers addFriendByCode's "Looking for your friend…" -
-    // the placeholder it left has lastSeen 0, so data arriving means found.
-    if (prev && prev.lastSeen === 0) setFriendsNote("");
+    // the placeholder it left has no lastSeen yet, so data arriving means found.
+    if (prev && !prev.lastSeen) setFriendsNote("");
     renderFriends();
     if (msg.t === "hello") safeSend(conn, { t: "profile", p: myProfile() });
   }
@@ -3586,16 +4000,23 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
     if (codes.length <= FRIENDS_CAP) return;
     // Unsolicited guests are evicted before friends the user actually
     // added - a flood of hostile dials must never push a real friend out.
+    // Pending placeholders (no lastSeen yet) are protected: they're
+    // someone the user JUST added by code, and evicting one means the
+    // friendship silently dies before its first handshake.
     codes
       .sort((a, b) => {
-        const ga = S.friends[a].guest ? 0 : 1;
-        const gb = S.friends[b].guest ? 0 : 1;
-        return ga - gb || (S.friends[a].lastSeen || 0) - (S.friends[b].lastSeen || 0);
+        const fa = S.friends[a], fb = S.friends[b];
+        const pa = fa.guest ? 0 : fa.lastSeen ? 1 : 2;
+        const pb = fb.guest ? 0 : fb.lastSeen ? 1 : 2;
+        return pa - pb ||
+          (fa.lastSeen || 0) - (fb.lastSeen || 0) ||
+          a.localeCompare(b); // stable tiebreak: same class never flaps
       })
       .slice(0, codes.length - FRIENDS_CAP)
       .forEach((code) => {
         delete S.friends[code];
         acceptedAt.delete(code);
+        dialAttempts.delete(code);
       });
   }
 
@@ -3617,12 +4038,24 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
   }
 
   function dialFriend(code) {
-    if (!peer || inflightDials >= 3) return;
+    if (!peer) return;
+    if (inflightDials >= 3) {
+      // Outbound dial slots are full: say so instead of silently dropping
+      // an add that would otherwise sit pending forever with no feedback.
+      setFriendsNote("Connection slots are busy - this friend will be dialed on the next sync.");
+      return;
+    }
     inflightDials++;
-    setTimeout(() => { inflightDials = Math.max(0, inflightDials - 1); }, 60000);
+    const release = () => { inflightDials = Math.max(0, inflightDials - 1); };
+    setTimeout(release, 60000);
     dialAttempts.set(code, Date.now());
     try {
-      attachConn(peer.connect(PEER_ID_PREFIX + code, { reliable: true }));
+      const conn = peer.connect(PEER_ID_PREFIX + code, { reliable: true });
+      // A conn that closes/errors frees its slot early instead of holding
+      // it for the full 60s (glare losers, dead dials, refused peers).
+      conn.on("close", release);
+      conn.on("error", release);
+      attachConn(conn, { dialed: true });
     } catch { /* broker hiccup - the next cycle retries */ }
   }
 
@@ -3649,19 +4082,24 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
   }
 
   function friendRow(code, f, online) {
-    const state = online ? "current" : "achieved";
+    // "online" is its own state (green) - ".current" means "you" on the
+    // leaderboard and in the ranks modal, not "is connected right now".
+    const state = online ? "online" : "achieved";
     // An open DataChannel means online regardless of when the last
     // profile arrived - lastSeen only refreshes on message receipt.
     // A never-contacted entry (addFriendByCode placeholder) is pending.
     const seen = online
       ? "online now"
       : f.lastSeen ? relTime(f.lastSeen) : "waiting to connect…";
+    const presChip = f.prestige
+      ? ` <span class="chip chip-prestige">P ${roman(f.prestige)}</span>`
+      : "";
     return `
       <li class="rank-row ${state} rk-${f.rank}" data-code="${code}">
         <span class="rank-badge">${badgeSVG(f.rank)}</span>
         <div>
           <div class="rr-name">${esc(f.name)}</div>
-          <div class="rr-levels">${esc(seen)} · Level ${f.level} · ${f.streak} ${ICONS.flame}</div>
+          <div class="rr-levels">${esc(seen)} · Level ${f.level} · ${f.streak} ${ICONS.flame}${presChip}</div>
         </div>
         <span class="rr-state">${Number(f.xp).toLocaleString()} XP</span>
         <button class="unfriend" title="Remove friend" aria-label="Remove ${esc(f.name)}">${ICONS.x}</button>
@@ -3670,6 +4108,11 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
 
   function renderFriends() {
     if (!friendsModal) return;
+    // The friends pill count paints on every data change; the two lists
+    // only exist inside the modal. Rebuilding both innerHTML blobs while
+    // the modal is closed is pure waste - paint the count, defer the rest
+    // to the next open (openFriends always renders).
+    const modalOpen = friendsModal.classList.contains("open");
 
     const codeEl = $("#friends-code");
     if (codeEl) codeEl.textContent = myCode().replace(/(\d{4})(\d{4})/, "$1 $2");
@@ -3677,10 +4120,14 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
     if (nameEl && document.activeElement !== nameEl) nameEl.value = S.profile.name || "";
 
     // Persisted friends - including unsolicited contacts, which carry a
-    // guest flag until the user adds their code.
+    // guest flag until the user adds their code. The HUD pill counts real
+    // friends only: pending unsolicited contacts are invitations, not
+    // friendships, and a "10" over a list of 8 reads as data loss.
     const entries = Object.entries(S.friends || {});
+    const friendCount = entries.filter(([, f]) => !f.guest || f.lastSeen).length;
     const countEl = $("#friends-count");
-    if (countEl) countEl.textContent = String(entries.length);
+    if (countEl) countEl.textContent = String(friendCount);
+    if (!modalOpen) return;
 
     $("#friends-list").innerHTML = entries.length
       ? entries
@@ -3694,11 +4141,12 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
       xp: S.xp,
       level: levelFromXP(S.xp),
       rank: rankForLevel(levelFromXP(S.xp)).key,
+      prestige: S.prestige,
       isMe: true,
     };
     const board = entries
-      .filter(([, f]) => f.lastSeen > 0) // pending placeholders have no numbers yet
-      .map(([code, f]) => ({ name: f.name, xp: f.xp, level: f.level, rank: f.rank, isMe: false }))
+      .filter(([, f]) => f.lastSeen) // pending placeholders have no numbers yet
+      .map(([code, f]) => ({ name: f.name, xp: f.xp, level: f.level, rank: f.rank, prestige: f.prestige, isMe: false }))
       .concat([me])
       .sort((a, b) => b.xp - a.xp);
     $("#friends-board").innerHTML = board
@@ -3707,7 +4155,7 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
           <span class="rank-badge">${badgeSVG(p.rank)}</span>
           <div>
             <div class="rr-name">${esc(p.name)}${p.isMe ? " (you)" : ""}</div>
-            <div class="rr-levels">Level ${p.level}</div>
+            <div class="rr-levels">Level ${p.level}${p.prestige ? ` <span class="chip chip-prestige">P ${roman(p.prestige)}</span>` : ""}</div>
           </div>
           <span class="rr-state">${Number(p.xp).toLocaleString()} XP</span>
         </li>`)
@@ -3715,9 +4163,9 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
   }
 
   function openFriends() {
-    renderFriends();
     friendsModal.classList.add("open");
     friendsModal.setAttribute("aria-hidden", "false");
+    renderFriends(); // after .open: the modal-gated early return must not skip it
     setFriendsNote("");
     syncFriends();
   }
@@ -3745,10 +4193,13 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
       syncFriends();
       return;
     }
+    // lastSeen stays null until the first handshake arrives - "waiting to
+    // connect" and "connected, seen ages ago" stay distinguishable, and
+    // the pending state can never be mistaken for a stale-but-real friend.
     S.friends[code] = {
       name: "…",
-      xp: 0, level: 1, rank: "bronze", streak: 0, weekMinutes: 0,
-      lastSeen: 0, lastTs: 0,
+      xp: 0, level: 1, rank: "bronze", prestige: 0, streak: 0, weekMinutes: 0,
+      lastSeen: null, lastTs: 0,
     };
     save();
     renderFriends();
@@ -3757,13 +4208,14 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
     dialFriend(code);
     setTimeout(() => {
       const f = S.friends[code];
-      if (f && f.lastSeen === 0) setFriendsNote("No answer - they may be offline. We'll retry automatically.");
+      if (f && !f.lastSeen) setFriendsNote("No answer - they may be offline. We'll retry automatically.");
     }, 8000);
   }
 
   function removeFriend(code) {
     delete S.friends[code];
     acceptedAt.delete(code);
+    dialAttempts.delete(code); // re-adding later must be able to dial immediately
     const conn = liveConns.get(code);
     if (conn) { try { conn.close(); } catch {} }
     save();
@@ -3827,6 +4279,9 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
       // Anti-farm flag: the +25 completion bonus can be claimed exactly
       // once, ever - unchecking and re-completing earns nothing.
       awardedDone: false,
+      awardedXP: 0,
+      farm: false,
+      revoked: false,
       subtasks: [],
       source: null,
     });
@@ -3871,11 +4326,15 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
       `${S.tasks.filter((t) => !t.done).length} OPEN`;
     renderFocusChip();
 
+    // index lookup once per render - indexOf inside the loop was O(n²)
+    // on a 300-task log, re-scanning the whole list per card.
+    const order = new Map(S.tasks.map((t, i) => [t.id, i]));
     for (const t of S.tasks) {
       const li = document.createElement("li");
       li.className =
         "task-card" +
         (t.done ? " done" : "") +
+        (t.farm ? " farm" : "") +
         (t.id === S.activeTaskId ? " active-task" : "");
       li.dataset.id = t.id;
       li.draggable = false;
@@ -3895,7 +4354,7 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
         : "");
 
       li.innerHTML = `
-        <div class="task-index">${String(S.tasks.indexOf(t) + 1).padStart(2, "0")}</div>
+        <div class="task-index">${String((order.get(t.id) ?? 0) + 1).padStart(2, "0")}</div>
         <div class="task-main">
           <div class="task-topline">
             <button class="checkbox${t.done ? " checked" : ""}" aria-label="${t.done ? "Mark task not done" : "Complete task"}">
@@ -3994,6 +4453,7 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
       // save()/renderTasks() - desyncing the UI from disk.
       const { x, y } = centerOf(taskListEl.querySelector(`[data-id="${CSS.escape(id)}"]`) || taskListEl);
       const banked = awardXP(bonus, { x, y });
+      t.awardedXP = banked; // exact payout recorded - the farm audit revokes this sum
       Confetti.burst(x, y, 55);
       Sound.taskDone();
       toast(
@@ -4007,6 +4467,9 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
     }
     save();
     renderTasks();
+    // A completion is the moment a farm pays out - screen it (free until
+    // the heuristic trips; the model only loads on real suspicion).
+    if (t.done) scheduleFarmAudit();
   }
 
   // Reorder: drop target swaps positions of dragId with hovered card.
@@ -4322,7 +4785,7 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
   /* ---- modal plumbing ---- */
   const modal = $("#breakdown-modal");
   const subList = $("#breakdown-list");
-  const subSource = $("#breakdown-subtitle") || $("#breakdown-source");
+  const subSource = $("#breakdown-source");
   let pendingSteps = null;
   let pendingSource = null;
   let busyBreaking = false;
@@ -4437,9 +4900,175 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
     renderTasks();
     toast(`Plan applied: <strong>${pendingSteps.length} steps</strong> added.`, "success");
 
-    if (firstPlan) awardXP(scaleXP(2), centerOf($("#breakdown-source")));
+    if (firstPlan) awardXP(scaleXP(2), centerOf(subSource));
     currentBreakdownTask = null;
     pendingSteps = null;
+  }
+
+  /* ----------------------------------------------------------
+     10b. Farm audit - the completion bonus's immune system.
+          A free heuristic looks for junk-shaped completed task
+          sets (duplicate clusters, trivial titles, a wall of
+          near-identical entries); only when it trips does the
+          LFM model get asked for a verdict, and XP is revoked
+          ONLY on a certain "farming" call. Anything less and
+          the player is left alone - better safe than sorry.
+     ---------------------------------------------------------- */
+  let busyAuditing = false;
+  let farmAuditTimer = null;
+  let farmAuditOverride = null; // e2e seam: force the model's verdict
+  const FARM_COOLDOWN_MS = 10 * 60 * 1000;
+  const farmCooldown = new Map(); // task id -> ts before which it won't be re-audited
+
+  const normalizeTitle = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, "");
+
+  /** The suspicious pool, or null when nothing looks farmed. */
+  function farmSuspicion() {
+    const done = S.tasks.filter((t) => t.awardedDone && !t.revoked);
+    if (!done.length) return null;
+
+    const byTitle = new Map();
+    for (const t of done) {
+      const n = normalizeTitle(t.title);
+      const arr = byTitle.get(n) || [];
+      arr.push(t);
+      byTitle.set(n, arr);
+    }
+
+    // Biggest duplicate cluster wins the pool; trivial titles ("a", "1")
+    // count as one cluster of their own.
+    let pool = null;
+    for (const arr of byTitle.values()) {
+      if (arr.length >= 3 && arr.length > (pool ? pool.length : 0)) pool = arr;
+    }
+    const trivial = done.filter((t) => normalizeTitle(t.title).length <= 2);
+    if (trivial.length >= 3 && trivial.length > (pool ? pool.length : 0)) pool = trivial;
+    // A wall of completions that collapses to a handful of unique titles.
+    if (!pool && done.length >= 30 && byTitle.size <= 5) pool = done;
+
+    if (!pool) return null;
+    // Two accidental dupes pay too little to bother the model - require a
+    // meaningful pot before an audit (and any revocation) can even start.
+    const pot = pool.reduce((a, t) => a + (t.awardedXP || 0), 0);
+    return pot >= 200 ? { pool, pot } : null;
+  }
+
+  /** 8s debounce: batch-completing 30 pasted tasks runs one audit. */
+  function scheduleFarmAudit() {
+    if (farmAuditTimer) return;
+    if (!farmSuspicion()) return;
+    farmAuditTimer = setTimeout(() => { farmAuditTimer = null; runFarmAudit(); }, 8000);
+  }
+
+  function buildAuditMessages(pool) {
+    const byNorm = new Map();
+    for (const t of pool) {
+      const n = normalizeTitle(t.title) || t.title.trim().toLowerCase();
+      const g = byNorm.get(n) || { count: 0, sample: t.title };
+      g.count++;
+      byNorm.set(n, g);
+    }
+    const lines = [...byNorm.values()]
+      .slice(0, 60)
+      .map((g) => `- "${g.sample.slice(0, 80)}" × ${g.count}`);
+    const pot = pool.reduce((a, t) => a + (t.awardedXP || 0), 0);
+    return [
+      {
+        role: "system",
+        content:
+          'You audit a pomodoro app for XP farming. Users earn bonus XP for each completed task, so some paste junk tasks. Farming means the completed tasks carry no real work: duplicates, meaningless strings, single letters or numbers, spam. Ordinary chores that are merely repetitive (e.g. "water the plants", "reply to email") are NOT farming. Output ONLY JSON, nothing else: {"farming":true,"confidence":"certain","reason":"..."} where farming is true or false and confidence is "certain", "likely" or "unclear". Use "certain" ONLY when the tasks could not plausibly be real work a human intended to do.',
+      },
+      {
+        role: "user",
+        content:
+          `Completed task list (${pool.length} tasks, ${pot} XP paid in completion bonuses):\n` +
+          lines.join("\n"),
+      },
+    ];
+  }
+
+  /** Tolerant verdict parse - junk output reads as "unclear", never as guilt. */
+  function parseVerdict(text) {
+    const start = String(text || "").indexOf("{");
+    if (start === -1) return null;
+    const body = String(text).slice(start);
+    const end = endOfFirstJSON(body);
+    const cut = end === -1 ? body : body.slice(0, end);
+    try {
+      const v = JSON.parse(cut);
+      if (typeof v.farming !== "boolean") return null;
+      if (!["certain", "likely", "unclear"].includes(v.confidence)) v.confidence = "unclear";
+      return v;
+    } catch {
+      return null;
+    }
+  }
+
+  async function auditVerdict(pool) {
+    if (farmAuditOverride) return farmAuditOverride(pool);
+    const { generate } = await ensureGenerator(null);
+    const text = await generate(buildAuditMessages(pool), null, 120);
+    return parseVerdict(text);
+  }
+
+  async function runFarmAudit() {
+    if (busyAuditing) return;
+    const sus = farmSuspicion();
+    if (!sus) return;
+    // Cooldown survivors and already-flagged tasks never re-audit.
+    const now = Date.now();
+    const pool = sus.pool.filter((t) => !t.farm && (farmCooldown.get(t.id) || 0) < now);
+    if (!pool.length) return;
+
+    busyAuditing = true;
+    try {
+      const verdict = await auditVerdict(pool);
+      if (verdict && verdict.farming === true && verdict.confidence === "certain") {
+        revokeFarmedXP(pool);
+      } else {
+        // Not certain - leave the player alone and stop re-auditing this pool.
+        for (const t of pool) farmCooldown.set(t.id, Date.now() + FARM_COOLDOWN_MS);
+        console.info("[chrono] farm audit: no action", verdict ? verdict.confidence : "unreadable");
+      }
+    } catch (err) {
+      console.info("[chrono] farm audit failed:", err?.message || err);
+    } finally {
+      busyAuditing = false;
+    }
+  }
+
+  /** The only XP subtraction in the app. No celebrations, no overlay -
+      and it deliberately never touches S.week.rank (the defended rank
+      persists, so Monday's reset target doesn't compound downwards) or
+      S.bestLevel (career high is permanent). */
+  function subtractXP(amount) {
+    const applied = Math.min(Math.max(0, Math.round(Number(amount) || 0)), S.xp);
+    if (!applied) return 0;
+    S.xp -= applied;
+    renderAllStats();
+    save();
+    return applied;
+  }
+
+  function revokeFarmedXP(pool) {
+    let total = 0;
+    for (const t of pool) {
+      if (t.revoked) continue;
+      t.farm = true; // stays on the list, visibly struck - the record of the strike
+      t.revoked = true;
+      total += t.awardedXP || 0;
+    }
+    const taken = subtractXP(total);
+    save();
+    renderTasks();
+    Sound.error();
+    toast(
+      taken > 0
+        ? `Cheating is discouraged - <strong>${taken.toLocaleString()} XP</strong> from farmed tasks has been revoked. Repeat offenses can get you banned.`
+        : "Cheating is discouraged - farmed tasks have been marked invalid and can never earn XP again. Repeat offenses can get you banned.",
+      "info", 9000
+    );
+    return taken;
   }
 
   /* ----------------------------------------------------------
@@ -4495,6 +5124,7 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
 
     // rank ladder
     $("#pill-rank").addEventListener("click", openRanks);
+    $("#pill-prestige").addEventListener("click", openRanks);
     $("#ranks-close").addEventListener("click", closeRanks);
     ranksModal.addEventListener("click", (e) => {
       if (e.target === ranksModal) closeRanks();
@@ -4574,6 +5204,10 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
     applyTheme();
     buildStaticUI();
 
+    // A save that already sat at the cap when prestige shipped still gets
+    // its loop started - the celebration fires once, then the climb resumes.
+    if (S.xp >= XP_CAP) prestigeUp();
+
     // Rebuild the timer face from hydrated settings - T was constructed
     // from defaults before storage was decrypted. Then resume a session
     // that was live when the page last closed.
@@ -4615,6 +5249,10 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
     setTimeout(() => { syncFriends(); }, 2000);
     setInterval(() => { if (!document.hidden) syncFriends(); }, 5 * 60 * 1000);
 
+    // A farm pasted before this boot (or completed while the page was
+    // closed) still gets screened - no need to wait for the next click.
+    scheduleFarmAudit();
+
     booted = true;
   }
 
@@ -4629,14 +5267,17 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
   // on an unload - at worst a refresh rewinds five seconds. The hidden
   // flush shares the dirty check so tab switches don't churn writes.
   function flushIfDirty() {
-    const snap = JSON.stringify(S);
+    // A cheap sentinel first: S ref count only changes when S is reassigned
+    // (hydrate, e2e write), so compare serialized state lazily - the
+    // stringify below only runs when the cheap checks leave it possible.
+    const wiped = lastPersisted && !localStorage.getItem(LS_KEY) && localStorage.getItem(KEY_KEY);
+    if (!wiped && lastPersisted === JSON.stringify(S)) return;
     // Heal a data slot wiped behind our back (extension, partial site-data
     // clear) - but ONLY when the key survived. A full clear must stay a
     // clean first run: re-planting here would encrypt with the stale
     // in-memory key while contomo.k is gone, so the next page would read
     // it with a fresh key and cry tamper.
-    const wiped = lastPersisted && !localStorage.getItem(LS_KEY) && localStorage.getItem(KEY_KEY);
-    if (snap !== lastPersisted || wiped) save();
+    save();
   }
   document.addEventListener("visibilitychange", () => {
     if (!booted) return;
@@ -4645,8 +5286,31 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
     if (friendsModal.classList.contains("open")) syncFriends();
   });
   setInterval(() => {
-    if (booted) flushIfDirty();
+    if (!booted) return;
+    // Sunday 23:59 can pass while the tab sits open untouched - the
+    // heartbeat is what re-checks it when no other trigger fires.
+    checkWeeklyReset();
+    flushIfDirty();
+    // Profile heartbeat over WebRTC: friends' scores and the leaderboard
+    // refresh within ~5s of either side changing. safeSend no-ops on
+    // dying channels and the 60s sweep reaps them.
+    if (liveConns.size) broadcastProfile();
   }, 5000);
+
+  // Multi-tab: localStorage "storage" events fire in every OTHER tab when
+  // one tab writes. Adopt the newer envelope instead of letting each tab's
+  // heartbeat clobber the other - last-writer-wins on the whole blob would
+  // silently revert sessions completed in the other tab.
+  window.addEventListener("storage", (e) => {
+    if (!booted || e.key !== LS_KEY || !e.newValue) return;
+    const seq = extractSeq(e.newValue);
+    // Our own envelope embeds this tab's last write seq; a remote write
+    // with a seq we've never seen (or a wiped slot replant) is newer news.
+    // seq null (old build / foreign envelope) adopts too - better to merge
+    // than to clobber an unknown writer.
+    if (seq !== null && seq <= mySeq) return;
+    adoptRemoteState(e.newValue);
+  });
 
   // E2E-only seam: automated tests seed deep-rank states and assert the
   // pure math through the app's own functions. Inert unless the page was
@@ -4664,8 +5328,17 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
         save();
       },
       xpForLevel, legacyXpForLevel, migrateXP, levelFromXP, xpForSession,
-      taskCompletionXP, scaleXP, rankMult, weekKey, resetTargetXP,
+      taskCompletionXP, scaleXP, rankMult, prestigeMult, prestigeUp, XP_CAP,
+      weekKey, resetTargetXP,
       checkWeeklyReset, rankIndexOf,
+      completeSession, WEEKLY_GOAL_BLOCKS, WEEKLY_GOAL_XP,
+      // Farm-audit + friends test hooks: force verdicts and inject fake
+      // DataConnections without the 276MB model or the broker.
+      subtractXP, farmSuspicion, scheduleFarmAudit, runFarmAudit,
+      farmAuditOverride: (fn) => { farmAuditOverride = fn; },
+      testHooks: { liveConns, dialAttempts, acceptedAt, myProfile, handleFriendMsg,
+                   attachConn, trimFriends, renderFriends, flushIfDirty,
+                   mySeq: () => mySeq, saveSeq: () => saveSeq },
     };
   }
 })();

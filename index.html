@@ -260,6 +260,8 @@ h1, h2, p { margin: 0; }
 .hud {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
+  row-gap: 10px;
   gap: 14px;
   margin-bottom: 28px;
 }
@@ -387,6 +389,21 @@ html[data-effective="dark"] .icon-moon { display: none; }
 html[data-fs="1"] .icon-contract { display: block; }
 html[data-fs="1"] .icon-expand { display: none; }
 
+/* Rain ambience toggle - slate, matching the break/mode accents. */
+.icon-btn.rain { color: var(--blue); }
+.icon-btn.rain:hover { color: var(--blue-edge); }
+.icon-btn.rain.on {
+  background: var(--blue-soft);
+  border-color: var(--blue-edge);
+  color: var(--blue-edge);
+}
+/* A slow pulse while on, so the button reads as "playing" not just tinted. */
+.icon-btn.rain.on svg { animation: rain-breathe 2.6s ease-in-out infinite; }
+@keyframes rain-breathe {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(0.9); opacity: 0.72; }
+}
+
 /* ============================================================
    KEYBOARD HINTS FOOTER
    ============================================================ */
@@ -419,9 +436,15 @@ html[data-fs="1"] .icon-expand { display: none; }
    ============================================================ */
 .main {
   display: grid;
-  grid-template-columns: minmax(350px, 10fr) minmax(350px, 12fr);
+  /* Equal columns: the timer's ring is ~300px so it needs no more room
+     than a task card, and a lopsided split made the task column the
+     widest thing on the page. Capped below the 1120px app shell so
+     cards stay a readable width on desktop instead of stretching. */
+  grid-template-columns: minmax(340px, 1fr) minmax(340px, 1fr);
   gap: 26px;
   align-items: start;
+  max-width: 980px;
+  margin-inline: auto;
 }
 
 .card {
@@ -746,9 +769,9 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
   position: relative;
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 15px;
+  gap: 13px;
   align-items: start;
-  padding: 16px 18px 15px;
+  padding: 14px 15px 13px;
   background: var(--card);
   border: 2px solid var(--line);
   border-radius: var(--r-m);
@@ -799,6 +822,10 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
   display: flex;
   align-items: flex-start;
   gap: 11px;
+  /* Wrap: on a narrow card the action cluster (3 buttons = 102px of
+     min-content) drops to its own line instead of forcing the whole
+     card wider than the viewport. */
+  flex-wrap: wrap;
 }
 
 .checkbox {
@@ -914,13 +941,23 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
   animation: check-pop 320ms var(--pop-ease);
 }
 
-.task-actions { display: flex; flex-direction: column; gap: 7px; }
+/* Action buttons sit in a ROW across the top-right of the card. A column
+   stack here would set the card's height (3 buttons = 116px), inflating
+   every simple task into a tall slab of dead space. */
+.task-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 6px;
+  flex: none;
+  margin-left: auto;
+}
 .mini-btn {
   display: grid;
   place-items: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 11px;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
   border-bottom: 3px solid transparent;
   color: var(--muted);
   background: var(--card-2);
@@ -928,7 +965,7 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
 }
 .mini-btn:hover { transform: translateY(-2px) scale(1.06); color: var(--ink); }
 .mini-btn:active { transform: translateY(1px) scale(0.94); }
-.mini-btn svg { width: 17px; height: 17px; }
+.mini-btn svg { width: 15px; height: 15px; }
 .mini-btn.ai {
   background: var(--purple);
   border-bottom-color: var(--purple-edge);
@@ -943,6 +980,16 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
   0%, 100% { rotate: 0deg; }
   30% { rotate: -9deg; }
   65% { rotate: 8deg; }
+}
+/* Manual plan: sage, the "do it yourself" sibling of the purple AI button. */
+.mini-btn.plan {
+  background: var(--green-soft);
+  color: var(--green-edge);
+}
+.mini-btn.plan:hover {
+  background: var(--green);
+  border-color: var(--green-edge);
+  color: var(--white);
 }
 /* Destructive action: rust-red so a remove/delete never reads as neutral. */
 .mini-btn.danger {
@@ -1202,6 +1249,52 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
   line-height: 1.45;
   max-height: 74px;
   overflow-y: hidden;
+}
+
+/* Manual planning rows - an editable step the model never touches. */
+.breakdown-item.editable {
+  grid-template-columns: 32px 1fr 34px;
+  padding: 0 0 0 13px;
+  background: var(--card);
+}
+.breakdown-item.editable .step-input {
+  padding: 11px 4px 9px 0;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  font-weight: 800;
+  font-size: 14px;
+  color: var(--ink);
+  transition: border-color 140ms;
+}
+.breakdown-item.editable .step-input::placeholder {
+  color: var(--muted);
+  font-weight: 600;
+}
+.breakdown-item.editable .step-input:focus {
+  outline: none;
+  border-bottom-color: var(--purple);
+}
+/* Remove-step button in the row's third grid track. */
+.breakdown-item .step-del {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  margin: 0 4px;
+  border-radius: 9px;
+  color: var(--muted);
+  transition: background-color 140ms, color 140ms;
+}
+.breakdown-item .step-del:hover { background: var(--red-soft); color: var(--red-edge); }
+.breakdown-item .step-del svg { width: 14px; height: 14px; }
+
+.manual-hint {
+  padding: 0 20px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
 }
 
 .modal-actions {
@@ -1612,7 +1705,9 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
    RESPONSIVE
    ============================================================ */
 @media (max-width: 980px) {
-  .main { grid-template-columns: 1fr; }
+  /* Stacked: a single centered column, not a full-bleed strip - a
+     800px-wide task card is unreadable and looks unfinished. */
+  .main { grid-template-columns: 1fr; max-width: 560px; }
 }
 @media (max-width: 720px) {
   .hud { flex-wrap: wrap; }
@@ -1634,6 +1729,9 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
   .pill .lbl { display: none; }
   .timer-controls, .mode-switch, .length-row { width: 100%; }
   .task-card { padding: 13px 12px 12px; gap: 10px; }
+  /* On a phone the action row would crush the title into a 70px sliver -
+     drop it to its own line at the foot of the card instead. */
+  .task-actions { flex-basis: 100%; margin-left: 0; justify-content: flex-end; }
   .task-title { font-size: 15px; }
   .subtask-list { padding: 10px 11px; }
   .quest-title { flex-wrap: wrap; row-gap: 2px; }
@@ -1713,6 +1811,15 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
           <span class="num" id="friends-count">0</span>
           <span class="lbl">Friends</span>
         </div>
+      </button>
+
+      <button class="icon-btn rain" id="rain-toggle" aria-pressed="false" aria-label="Toggle rain ambience" title="Rain ambience during focus (R)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M6.5 14.5 A3.2 3.2 0 0 1 7 8.2 A4.6 4.6 0 0 1 16 8 A3.2 3.2 0 0 1 17.5 14.5 Z"/>
+          <path d="M9 18 L8 20.5"/>
+          <path d="M12.5 18 L11.5 20.5"/>
+          <path d="M16 18 L15 20.5"/>
+        </svg>
       </button>
 
       <button class="icon-btn" id="theme-toggle" aria-label="Cycle theme" title="Cycle theme">
@@ -1882,7 +1989,9 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
         </div>
         <div class="model-status" id="breakdown-source"></div>
         <ul class="breakdown-list" id="breakdown-list"></ul>
+        <div class="manual-hint hidden" id="manual-hint">Write your own steps. Blank rows are dropped when you apply the plan.</div>
         <div class="modal-actions">
+          <button class="btn-3d gray hidden" id="breakdown-add-step">Add step</button>
           <button class="btn-3d purple" id="breakdown-apply">Apply plan</button>
           <button class="btn-3d gray" id="breakdown-done">Close</button>
         </div>
@@ -1952,6 +2061,7 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
       <span><kbd>Space</kbd> start / pause</span>
       <span><kbd>T</kbd> switch mode</span>
       <span><kbd>F</kbd> fullscreen</span>
+      <span><kbd>R</kbd> rain</span>
       <span><kbd>Esc</kbd> close dialogs</span>
     </footer>
 
@@ -2234,6 +2344,9 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
       '<svg class="flame-ic" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.2 2 C13 5 12.8 8 11.5 10.4 C12.6 9.9 13.6 8.9 14.2 7.4 C15.4 9.2 16.5 11.2 16.5 13.6 A4.7 4.7 0 0 1 7.1 13.6 C7.1 9 11.4 6.4 12.2 2 Z"/></svg>',
     play:
       '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5 L19 12 L8 19 Z"/></svg>',
+    // Manual plan: the same breakdown dialog, but the steps are yours to write.
+    list:
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6 H20 M8 12 H20 M8 18 H20"/><path d="M4 6 L4.9 6.9 L6.6 5"/><path d="M4 12 L4.9 12.9 L6.6 11"/><path d="M4 18 L4.9 18.9 L6.6 17"/></svg>',
     x:
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6 L18 18 M18 6 L6 18"/></svg>',
   };
@@ -2267,7 +2380,7 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
       activeTaskId: null,
       timerLive: null,
       tasks: [],
-      settings: { work: 25, short: 5, long: 15, theme: "system" },
+      settings: { work: 25, short: 5, long: 15, theme: "system", rain: false },
     };
   }
 
@@ -2505,6 +2618,8 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
       S.settings[k] = clamp(Number.isFinite(v) ? Math.round(v) : 25, k === "short" ? 1 : 5, 120);
     });
     if (!["system", "light", "dark"].includes(S.settings.theme)) S.settings.theme = "system";
+    // Rain ambience is a plain boolean - an older build has no key at all.
+    S.settings.rain = !!S.settings.rain;
 
     // Tasks: the same ceilings the input handlers enforce, applied to
     // whatever the save carried. Junk entries are dropped, not crashed on.
@@ -2884,6 +2999,135 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
   }, { capture: true });
 
   /* ----------------------------------------------------------
+     5a-bis. Rain ambience - a looped noise bed synthesized live,
+     zero audio assets. Plays while a focus session is RUNNING:
+     start/pause/setMode/completeSession all funnel through
+     syncRain(), so the sound can never drift from the timer.
+     ---------------------------------------------------------- */
+  const Rain = (() => {
+    let started = false;
+    let nodes = null; // { master, source, filter, lfo }
+    let dripTimer = null;
+
+    const RAIN_VOL = 0.085;
+    const DRIP_VOL = 0.05;
+
+    /** A few seconds of brownish noise - the rain's body. Looping 3s is
+        long enough that the join is inaudible under the filter. */
+    function noiseBuffer(ctx) {
+      const len = Math.floor(ctx.sampleRate * 3);
+      const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+      const d = buf.getChannelData(0);
+      let last = 0;
+      for (let i = 0; i < len; i++) {
+        const white = Math.random() * 2 - 1;
+        // Brown noise: integrate white and normalize - rainfall is heavy
+        // in low frequencies, white noise alone reads as static.
+        last = (last + 0.02 * white) / 1.02;
+        d[i] = last * 3.5;
+      }
+      return buf;
+    }
+
+    function start() {
+      if (started) return;
+      const ctx = ac();
+      started = true;
+
+      const master = ctx.createGain();
+      master.gain.setValueAtTime(0.0001, ctx.currentTime);
+      master.gain.exponentialRampToValueAtTime(RAIN_VOL, ctx.currentTime + 1.6);
+      master.connect(ctx.destination);
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = "lowpass";
+      filter.frequency.setValueAtTime(2600, ctx.currentTime);
+      filter.Q.value = 0.4;
+      filter.connect(master);
+
+      // Slow sweep of the cutoff: gusts, so the bed isn't a flat hiss.
+      const lfo = ctx.createOscillator();
+      const lfoGain = ctx.createGain();
+      lfo.frequency.value = 0.07;
+      lfoGain.gain.value = 700;
+      lfo.connect(lfoGain).connect(filter.frequency);
+      lfo.start();
+
+      const source = ctx.createBufferSource();
+      source.buffer = noiseBuffer(ctx);
+      source.loop = true;
+      source.connect(filter);
+      source.start();
+
+      nodes = { master, source, filter, lfo };
+      scheduleDrip();
+    }
+
+    function stop() {
+      if (!started) return;
+      started = false;
+      clearTimeout(dripTimer);
+      const { master, source, lfo } = nodes;
+      nodes = null;
+      const ctx = ac();
+      // Fade out, then release - a hard stop clicks.
+      master.gain.cancelScheduledValues(ctx.currentTime);
+      master.gain.setValueAtTime(Math.max(master.gain.value, 0.0001), ctx.currentTime);
+      master.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.7);
+      source.stop(ctx.currentTime + 0.8);
+      lfo.stop(ctx.currentTime + 0.8);
+    }
+
+    /** Sparse drips on top of the bed - the detail that sells "rain". */
+    function scheduleDrip() {
+      if (!started) return;
+      const delay = 900 + Math.random() * 2600;
+      dripTimer = setTimeout(() => {
+        if (!started) return;
+        drip();
+        scheduleDrip();
+      }, delay);
+    }
+
+    function drip() {
+      const ctx = ac();
+      if (!nodes) return;
+      const f = 500 + Math.random() * 1400;
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(f * 1.25, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(f, ctx.currentTime + 0.05);
+      g.gain.setValueAtTime(0.0001, ctx.currentTime);
+      g.gain.linearRampToValueAtTime(DRIP_VOL, ctx.currentTime + 0.008);
+      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.16);
+      osc.connect(g).connect(nodes.master);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.2);
+    }
+
+    return { start, stop, isPlaying: () => started };
+  })();
+
+  /** The single authority on whether rain should be audible. Called from
+      every timer transition, so a resumed session picks it up too. */
+  function syncRain() {
+    const want = !!(S.settings.rain && T && T.running && T.mode === "work");
+    if (want && !Rain.isPlaying()) Rain.start();
+    else if (!want && Rain.isPlaying()) Rain.stop();
+  }
+
+  function toggleRain() {
+    S.settings.rain = !S.settings.rain;
+    save();
+    const btn = $("#rain-toggle");
+    btn.classList.toggle("on", S.settings.rain);
+    btn.setAttribute("aria-pressed", String(S.settings.rain));
+    syncRain();
+    toast(S.settings.rain ? "Rain ambience on - plays during focus." : "Rain ambience off.", "info", 1900);
+  }
+
+  /* ----------------------------------------------------------
      5b. Feedback layer - particles, XP fly-ups, level overlay
      ---------------------------------------------------------- */
   const fxLayer = document.createElement("div");
@@ -3168,6 +3412,7 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
     updateModeUI();
     renderTime();
     persistTimer();
+    syncRain();
     if (autostart) start();
   }
 
@@ -3202,6 +3447,7 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
     bodyEl.classList.add("running");
     renderControls();
     persistTimer();
+    syncRain();
     tick();
   }
 
@@ -3214,6 +3460,7 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
     renderControls();
     renderTime(); // drop the live-dot class immediately, not on the next tick
     persistTimer();
+    syncRain();
   }
 
   function toggle() {
@@ -3335,6 +3582,7 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
   function completeSession() {
     stopTicker();
     T.running = false;
+    syncRain();
     // Rollover FIRST: a session finishing just after Sunday 23:59 belongs
     // to the new week. If the reset ran at the bottom of this function it
     // would clip the XP just earned and erase it from the weekly minutes.
@@ -4372,6 +4620,9 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
             </div>
             <div class="task-actions">
               ${t.done ? "" : `
+              <button class="mini-btn plan" data-act="plan" title="Add a plan yourself" aria-label="Add a plan manually">
+                ${ICONS.list}
+              </button>
               <button class="mini-btn ai" data-act="ai" title="Experimental: break down with LFM2.5-350M (on-device)" aria-label="Break down task with model (experimental)">
                 ${ICONS.sparkle}
               </button>`}
@@ -4429,6 +4680,7 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
     if (!task) return;
 
     if (btn.dataset.act === "ai") runBreakdown(task);
+    if (btn.dataset.act === "plan") runManualPlan(task);
     if (btn.dataset.act === "del") {
       burstAt(btn);
       S.tasks = S.tasks.filter((x) => x.id !== task.id);
@@ -4813,6 +5065,7 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
     pendingSteps = null;
     pendingSource = null;
     subList.innerHTML = "";
+    setManualMode(false); // a manual plan may have left the dialog in edit mode
     $("#breakdown-task-name").textContent = `"${task.title}"`;
     openModal();
     document.activeElement?.blur();
@@ -4877,6 +5130,17 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
   }
 
   function applyPending() {
+    // Manual mode: the rows are the source of truth, so harvest them
+    // here rather than trusting whatever was last rendered.
+    if (manualMode) {
+      pendingSteps = collectManualSteps();
+      if (!pendingSteps.length) {
+        toast("Write at least one step before applying the plan.", "info", 2600);
+        const first = subList.querySelector(".step-input");
+        if (first) first.focus();
+        return; // stay open - closing would discard the user's typing
+      }
+    }
     closeModal();
     if (!pendingSteps || !currentBreakdownTask) return;
     // The task can be deleted while the model runs - applying to the
@@ -4893,7 +5157,9 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
 
     currentBreakdownTask.subtasks = pendingSteps.map((s) => ({
       title: s.title,
-      done: false,
+      // Editing a plan keeps the ticks you already earned; a fresh
+      // plan (model or manual) has no done state to carry.
+      done: !!s.done,
     }));
     currentBreakdownTask.source = pendingSource;
     save();
@@ -4904,6 +5170,81 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
     currentBreakdownTask = null;
     pendingSteps = null;
   }
+
+  /* ---- Manual planning: the same dialog, but you are the model.
+     No download, no WebGPU, no "experimental" tag - just rows you
+     write. Reuses applyPending() so the XP rules stay identical. */
+  let manualMode = false;
+
+  function setManualMode(on) {
+    manualMode = on;
+    // The "experimental" tag belongs to the model path only.
+    modal.querySelector(".exp-chip").classList.toggle("hidden", on);
+    $("#manual-hint").classList.toggle("hidden", !on);
+    $("#breakdown-add-step").classList.toggle("hidden", !on);
+    // subSource stays visible either way: it's also the origin of the
+    // first-plan XP burst, and hiding it would fire that off-screen.
+  }
+
+  /** One editable row. `preset` carries a title and (for re-plans) the
+      existing tick state, so editing a plan never erases progress. */
+  function editableRow(preset = {}) {
+    const li = document.createElement("li");
+    li.className = "breakdown-item editable";
+    li.innerHTML =
+      `<span class="num"></span>` +
+      `<input class="step-input" type="text" maxlength="80" placeholder="Step…" aria-label="Step" value="${esc(preset.title || "")}">` +
+      `<button class="step-del" type="button" title="Remove step" aria-label="Remove step">${ICONS.trash}</button>`;
+    if (preset.done) li.dataset.done = "1";
+    // Enter in a row appends another row, like a real list editor.
+    li.querySelector(".step-input").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { e.preventDefault(); addManualRow(); }
+    });
+    return li;
+  }
+
+  function addManualRow(focusIt = true) {
+    const row = editableRow();
+    subList.appendChild(row);
+    renumberManual();
+    if (focusIt) row.querySelector(".step-input").focus();
+  }
+
+  function renumberManual() {
+    subList.querySelectorAll(".breakdown-item.editable .num").forEach((el, i) => {
+      el.textContent = String(i + 1);
+    });
+  }
+
+  /** Read the rows, dropping blanks. An empty plan is not a plan. */
+  function collectManualSteps() {
+    const out = [];
+    subList.querySelectorAll(".breakdown-item.editable").forEach((li) => {
+      const title = (li.querySelector(".step-input")?.value || "").trim();
+      if (!title) return;
+      out.push({ title, done: li.dataset.done === "1" });
+    });
+    return out;
+  }
+
+  function runManualPlan(task) {
+    if (busyBreaking) return; // a model run owns the dialog right now
+    currentBreakdownTask = task;
+    pendingSteps = null;
+    pendingSource = "You";
+    subList.innerHTML = "";
+    $("#breakdown-task-name").textContent = `"${task.title}"`;
+    setManualMode(true);
+    setSub("Manual plan", false);
+    openModal();
+    // Seed with what's already there: re-planning should start from the
+    // current steps, not from a blank page that silently drops them.
+    const seeds = task.subtasks.length ? task.subtasks : [{}];
+    seeds.forEach((st) => subList.appendChild(editableRow(st)));
+    if (!task.subtasks.length) subList.appendChild(editableRow()); // a spare blank row
+    renumberManual();
+  }
+
 
   /* ----------------------------------------------------------
      10b. Farm audit - the completion bonus's immune system.
@@ -5113,8 +5454,27 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
     $("#breakdown-done").addEventListener("click", () => closeModal());
     $("#breakdown-apply").addEventListener("click", applyPending);
 
+    // Manual plan: append and remove rows. Delegated on the list so a row
+    // can be added or removed without re-binding anything.
+    $("#breakdown-add-step").addEventListener("click", () => addManualRow());
+    subList.addEventListener("click", (e) => {
+      if (!manualMode) return;
+      const del = e.target.closest(".step-del");
+      if (!del) return;
+      // Keep one row alive - an empty list can't be edited back from.
+      if (subList.querySelectorAll(".breakdown-item.editable").length <= 1) {
+        del.closest(".breakdown-item").querySelector(".step-input").value = "";
+        return;
+      }
+      del.closest(".breakdown-item").remove();
+      renumberManual();
+    });
+
     // theme
     $("#theme-toggle").addEventListener("click", cycleTheme);
+
+    // rain ambience
+    $("#rain-toggle").addEventListener("click", toggleRain);
 
     // fullscreen - focus mode for the whole deck
     $("#fullscreen-btn").addEventListener("click", toggleFullscreen);
@@ -5189,6 +5549,11 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
       if (e.key.toLowerCase() === "f" && !e.ctrlKey && !e.metaKey && !e.altKey) {
         toggleFullscreen();
       }
+
+      // R = rain ambience (plays during focus once enabled)
+      if (e.key.toLowerCase() === "r" && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        toggleRain();
+      }
     });
   }
 
@@ -5230,6 +5595,13 @@ body.running .btn-start { --fill: var(--gold); --edge: var(--gold-edge); color: 
     }
 
     renderTime(); // paint initial countdown + ring
+    // Paint the rain toggle from persisted settings - start() above already
+    // started the sound if it should be running, but the button has to match.
+    {
+      const btn = $("#rain-toggle");
+      btn.classList.toggle("on", !!S.settings.rain);
+      btn.setAttribute("aria-pressed", String(!!S.settings.rain));
+    }
     bindEvents();
     renderAllStats();
     renderTasks();
